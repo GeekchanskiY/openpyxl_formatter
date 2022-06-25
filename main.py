@@ -4,12 +4,43 @@ from phonenumbers.phonenumberutil import NumberParseException
 from openpyxl import Workbook, load_workbook, worksheet
 
 
-def check_number(string: str) -> str:
-    pass
+def check_number(string: str) -> int:
+    """
+        Checks if number matches one of these cases:
+            Case 1: code starts with 9
+            Case 2: starts with 6 & 9
+        and returns if matches
+
+    Args:
+        string(str): formatted number str (length will be checked dynamically)
+    Returns:
+        bool: 0 - does not match, 1 - case 1, 2 - case 2
+    """
+    if len(string) == 10:
+        if string[0] == "9":
+            return 1
+        elif string[3] == "6":
+            return 2
+        elif string[3] == "9":
+            return 2
+    elif len(string) == 7:
+        if string[0] == "6":
+            return 2
+        elif string[0] == "9":
+            return 2
+    return 0
 
 
 def alternative_select_number_from_str(string: str) -> str:
+    """
 
+    Alternative string formatting for all specific cases
+
+    Args:
+         string(str): raw number str
+    Returns:
+        str: formatted string
+    """
     # deleting all unnecessary symbols
 
     string = re.sub("[а-я]", "", string)
@@ -60,7 +91,7 @@ def filetype1(wb: Workbook) -> Workbook:
             Workbook: new Workbook with formatted data
     """
 
-    output_data: list[str, list] = []
+    output_data: list[dict] = []
     ws: worksheet = wb.active
     for row in ws.values:
         numbers: list[str] = []
@@ -115,13 +146,19 @@ def filetype1(wb: Workbook) -> Workbook:
         # deleting duplicates if exists
 
         numbers = list(set(numbers))
+        for n in numbers:
+            res = check_number(n)
+            if res is 1:
+                output_data.append({"name": str(row[0]), "phone": n, "comment": str(row[2])})
+            elif res is 2:
+                if len(n) == 7:
+                    n = "7812" + n
+                    output_data.append({"name": str(row[0]), "phone": n, "comment": str(row[2])})
 
-        print(numbers)
-    print(output_data)
     return wb
 
 
-def filetype2(wb: Workbook, *args, **kwargs) -> Workbook:
+def filetype2(wb: Workbook) -> Workbook:
     """
         Makes new worksheet for filetype 2 and returns new workbook if created successfully
 
@@ -134,7 +171,7 @@ def filetype2(wb: Workbook, *args, **kwargs) -> Workbook:
     pass
 
 
-def main(filename: str, *args, **kwargs):
+def main(filename: str):
     wb = load_workbook(filename)
     ws = wb.active
     row_len = len(list(ws.iter_rows())[0])
