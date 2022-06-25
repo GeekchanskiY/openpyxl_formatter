@@ -36,17 +36,23 @@ def check_number(string: str) -> int:
     Return:
         bool: 0 - does not match, 1 - case 1, 2 - case 2
     """
+
     if len(string) == 10:
         if string[0] == "9":
+
             return 1
         elif string[3] == "6":
+
             return 2
         elif string[3] == "9":
+
             return 2
     elif len(string) == 7:
         if string[0] == "6":
+
             return 2
         elif string[0] == "9":
+
             return 2
     return 0
 
@@ -74,6 +80,9 @@ def alternative_select_number_from_str(string: str) -> str:
     # for (xxx) case
     if string[0] == "(" and string[-1] == ")":
         string = string[1:-1]
+
+    if string[0:2] == "8(":
+        string = string[1:]
 
     # flag for getting code
     code_starts = False
@@ -111,23 +120,28 @@ def write_to_new_workbook(output_data: list[dict]) -> bool:
     wb = Workbook()
     ws = wb.active
     ws.title = "Output"
+    written_numbers = []
     row = 1
     for i in output_data:
         if i["first"]:
-            ws.cell(row=row, column=1).value = i["name"]
-            ws.cell(row=row, column=2).value = i["phone"]
-            ws.cell(row=row, column=3).value = i["comment"]
-            row += 1
+            if not i["phone"] in written_numbers:
+                ws.cell(row=row, column=1).value = i["name"]
+                ws.cell(row=row, column=2).value = i["phone"]
+                ws.cell(row=row, column=3).value = i["comment"]
+                written_numbers.append(i["phone"])
+                row += 1
     ws.cell(row=row, column=1).value = "//////////////////"
     ws.cell(row=row, column=2).value = "// I <3 Python ///"
     ws.cell(row=row, column=3).value = "//////////////////"
     row += 1
     for i in output_data:
         if not i["first"]:
-            ws.cell(row=row, column=1).value = i["name"]
-            ws.cell(row=row, column=2).value = i["phone"]
-            ws.cell(row=row, column=3).value = i["comment"]
-            row += 1
+            if not i["phone"] in written_numbers:
+                ws.cell(row=row, column=1).value = i["name"]
+                ws.cell(row=row, column=2).value = i["phone"]
+                ws.cell(row=row, column=3).value = i["comment"]
+                written_numbers.append(i["phone"])
+                row += 1
     wb.save("output.xlsx")
     return True
 
@@ -166,6 +180,15 @@ def filetype1(wb: Workbook) -> list:
                 temp_str: str = m.string
 
                 for number in raw_numbers:
+                    try:
+                        index1 = temp_str.index(number)
+
+                        if temp_str[index1-1] == "8":
+
+                            temp_str = temp_str[:index1-2] + temp_str[index1:]
+
+                    except ValueError:
+                        pass
                     temp_str = temp_str.replace(number, "")
 
                 # Third custom filter
@@ -186,17 +209,16 @@ def filetype1(wb: Workbook) -> list:
                 if res == 1:
                     comment = ""
                     for comm in cols:
-                        if str(row[comm]) != "None":
+                        if str(row[comm]) != "None" and comment == "" and str(row[comm]) is not None:
                             comment = str(row[comm])
-                            break
+
                     output_data.append({"name": str(row[0]), "phone": "7"+n, "comment": comment, "first": True})
 
                 elif res == 2:
                     comment = ""
                     for comm in cols:
-                        if str(row[comm]) != "None":
+                        if str(row[comm]) != "None" and comment == "" and str(row[comm]) is not None:
                             comment = str(row[comm])
-                            break
                     if len(n) == 7:
                         n = "7812" + n
                         output_data.append({"name": str(row[0]), "phone": n, "comment": comment,
@@ -225,11 +247,10 @@ def filetype2(wb: Workbook) -> list:
         raw_numbers: list[str] = []
         if str(row[0]) != "None" and str(row[0]) != "" and str(row[0]) != " ":
             last_found = str(row[0])
-            print(row[0])
 
         # First filter with general regex
 
-        for col in cols:
+        for col in range(1, len(row)):
             numbers: list[str] = []
             for m in re.finditer(r"(?:(?:8|\+7)[\- ]?)?(?:\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}", str(row[col])):
 
@@ -244,6 +265,14 @@ def filetype2(wb: Workbook) -> list:
                 temp_str: str = m.string
 
                 for number in raw_numbers:
+                    try:
+                        index1 = temp_str.index(number)
+
+                        if temp_str[index1-1] == "8":
+                            temp_str = temp_str[:index1-2] + temp_str[index1:]
+
+                    except ValueError:
+                        pass
                     temp_str = temp_str.replace(number, "")
 
                 # Third custom filter
@@ -263,17 +292,16 @@ def filetype2(wb: Workbook) -> list:
                 if res == 1:
                     comment = ""
                     for comm in cols:
-                        if str(row[comm]) != "None":
+                        if str(row[comm]) != "None" and comment == "" and str(row[comm]) is not None:
                             comment = str(row[comm])
-                            break
+
                     output_data.append({"name": last_found, "phone": "7"+n, "comment": comment, "first": True})
 
                 elif res == 2:
                     comment = ""
                     for comm in cols:
-                        if str(row[comm]) != "None":
+                        if str(row[comm]) != "None" and comment == "" and str(row[comm]) is not None:
                             comment = str(row[comm])
-                            break
                     if len(n) == 7:
                         n = "7812" + n
                         output_data.append({"name": last_found, "phone": n, "comment": comment,
