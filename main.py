@@ -1,14 +1,14 @@
 import re
 import phonenumbers
-from phonenumbers.phonenumberutil import NumberParseException
 from openpyxl import Workbook, load_workbook, worksheet
 from sys import argv
 
 # filename - input .xlsx workbook file name
 # col 1-3 cols, if they do not exist input 0
 args = argv
-global cols
+filename = ""
 cols: list[int] = []
+
 try:
     filename = args[1]
 except IndexError:
@@ -100,11 +100,13 @@ def alternative_select_number_from_str(string: str) -> str:
     return this_phone
 
 
-def write_to_new_workbook(output_data: list) -> bool:
+def write_to_new_workbook(output_data: list[dict]) -> bool:
     """
-
-    :param output_data:
-    :return:
+        Writes data to output.xlsx
+    Args:
+        output_data (list[dict]) - data
+    Return:
+        bool - if created
     """
     wb = Workbook()
     ws = wb.active
@@ -170,7 +172,7 @@ def filetype1(wb: Workbook) -> list:
 
                 if len(str(re.sub(r"\D", "", temp_str))) >= 7:
                     for t_s in temp_str.split(","):
-                        if t_s != "" and len(re.sub("\D", "", t_s)) >= 7:
+                        if t_s != "" and len(re.sub(r"\D", "", t_s)) >= 7:
                             numbers.append(alternative_select_number_from_str(t_s))
 
                 # deleting duplicates if exists
@@ -238,7 +240,7 @@ def filetype2(wb: Workbook) -> list:
 
                 if len(str(re.sub(r"\D", "", temp_str))) >= 7:
                     for t_s in temp_str.split(","):
-                        if t_s != "" and len(re.sub("\D", "", t_s)) >= 7:
+                        if t_s != "" and len(re.sub(r"\D", "", t_s)) >= 7:
                             numbers.append(alternative_select_number_from_str(t_s))
 
                 # deleting duplicates if exists
