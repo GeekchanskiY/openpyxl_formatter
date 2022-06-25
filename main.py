@@ -1,13 +1,35 @@
 import re
-
+import phonenumbers
+from phonenumbers.phonenumberutil import NumberParseException
 from openpyxl import Workbook, load_workbook, worksheet
 
 
-def select_number_from_str(string: str) -> list[str]:
-    all_phones = []
+def select_number_from_str(string: str) -> str:
+
+    string = re.sub("[а-я]", "", string)
+    string = re.sub("[А-Я]", "", string)
+    string = re.sub("[a-z]", "", string)
+    string = re.sub("[A-Z]", "", string)
+    string = string.strip()
+    if string[0] == "(" and string[-1] == ")":
+        string = string[1:-1]
+
+    phone_len = 0
+    code_starts = False
+    code = ""
+    this_phone = ""
     for i in range(0, len(string)):
-        if re.match(r"[0-9]", string[i]):
-            print("YAY")
+        if string[i] == "(":
+            code_starts = True
+        elif string[i] == ")":
+            code_starts = False
+        if re.match(r"\d", string[i]):
+            if code_starts is True:
+                code += string[i]
+            else:
+                this_phone += string[i]
+    this_phone = code + this_phone
+    return this_phone
 
 
 def filetype1(wb: Workbook, *args, **kwargs) -> Workbook:
@@ -24,8 +46,33 @@ def filetype1(wb: Workbook, *args, **kwargs) -> Workbook:
     output_data: list[str, list] = []
     ws: worksheet = wb.active
     for row in ws.values:
+        numbers: list[str] = []
+        raw_numbers: list[str] = []
+
+        # First filter with general regex
+
         for m in re.finditer(r"(?:(?:8|\+7)[\- ]?)?(?:\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}", str(row[1])):
-            select_number_from_str(m.string)
+
+            # Second filter with phonenumbers
+
+            for match in phonenumbers.PhoneNumberMatcher(m.string, "RU"):
+                raw_numbers.append(match.raw_string)
+                numbers.append(str(match.number.national_number))
+
+            # deleting everything phonenumbers found
+
+            temp_str: str = m.string
+
+            for number in raw_numbers:
+                temp_str = temp_str.replace(number, "")
+
+            # Third custom filter
+
+            if len(str(re.sub(r"\D", "", temp_str))) >= 7:
+                for t_s in temp_str.split(","):
+                    if t_s != "" and len(re.sub("\D", "", t_s)) >= 7:
+                        numbers.append(select_number_from_str(t_s))
+
     print(output_data)
     return wb
 
@@ -50,7 +97,7 @@ def main(filename: str, *args, **kwargs):
     if row_len == 3:
         new_workbook = filetype1(wb)
     else:
-        new_workbook = filetype2(wb)
+        new_workbook = filetype1(wb)
     new_workbook.save("output.xlsx")
 
 
