@@ -139,13 +139,13 @@ def filetype1(wb: Workbook) -> list:
     output_data: list[dict] = []
     ws: worksheet = wb.active
     for row in ws.values:
-        numbers: list[str] = []
+
         raw_numbers: list[str] = []
         # row 2
 
         # First filter with general regex
         for col in cols:
-
+            numbers: list[str] = []
             for m in re.finditer(r"(?:(?:8|\+7)[\- ]?)?(?:\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}", str(row[col])):
 
                 # Second filter with phonenumbers
@@ -170,23 +170,23 @@ def filetype1(wb: Workbook) -> list:
 
                 # deleting duplicates if exists
 
-                numbers = list(set(numbers))
+            numbers = list(set(numbers))
 
-                # creating output data
+            # creating output data
 
-                for n in numbers:
-                    res = check_number(n)
-                    if res == 1:
-                        output_data.append({"name": str(row[0]), "phone": "7"+n, "comment": str(row[col]), "first": True})
+            for n in numbers:
+                res = check_number(n)
+                if res == 1:
+                    output_data.append({"name": str(row[0]), "phone": "7"+n, "comment": str(row[col]), "first": True})
 
-                    elif res == 2:
-                        if len(n) == 7:
-                            n = "7812" + n
-                            output_data.append({"name": str(row[0]), "phone": n, "comment": str(row[col]),
-                                                "first": False})
-                        else:
-                            output_data.append({"name": str(row[0]), "phone": "7"+n, "comment": str(row[col]),
-                                                "first": False})
+                elif res == 2:
+                    if len(n) == 7:
+                        n = "7812" + n
+                        output_data.append({"name": str(row[0]), "phone": n, "comment": str(row[col]),
+                                            "first": False})
+                    else:
+                        output_data.append({"name": str(row[0]), "phone": "7"+n, "comment": str(row[col]),
+                                            "first": False})
     return output_data
 
 
@@ -204,7 +204,7 @@ def filetype2(wb: Workbook) -> list:
     ws: worksheet = wb.active
     last_found = ""
     for row in ws.values:
-        numbers: list[str] = []
+
         raw_numbers: list[str] = []
         if str(row[0]) is not None and str(row[0]) != "" and str(row[0]) != " ":
             last_found = str(row[0])
@@ -212,6 +212,7 @@ def filetype2(wb: Workbook) -> list:
         # First filter with general regex
 
         for col in cols:
+            numbers: list[str] = []
             for m in re.finditer(r"(?:(?:8|\+7)[\- ]?)?(?:\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}", str(row[col])):
 
                 # Second filter with phonenumbers
@@ -236,23 +237,23 @@ def filetype2(wb: Workbook) -> list:
 
                 # deleting duplicates if exists
 
-                numbers = list(set(numbers))
+            numbers = list(set(numbers))
 
-                # creating output data
+            # creating output data
+            for n in numbers:
+                res = check_number(n)
+                if res == 1:
 
-                for n in numbers:
-                    res = check_number(n)
-                    if res == 1:
+                    output_data.append({"name": last_found, "phone": "7"+n, "comment": str(row[col]), "first": True})
 
-                        output_data.append({"name": last_found, "phone": "7"+n, "comment": str(row[col]), "first": True})
-                    elif res == 2:
-                        if len(n) == 7:
-                            n = "7812" + n
-                            output_data.append({"name": last_found, "phone": n, "comment": str(row[col]),
-                                                "first": False})
-                        else:
-                            output_data.append({"name": last_found, "phone": "7" + n, "comment": str(row[col]),
-                                                "first": False})
+                elif res == 2:
+                    if len(n) == 7:
+                        n = "7812" + n
+                        output_data.append({"name": last_found, "phone": n, "comment": str(row[col]),
+                                            "first": False})
+                    else:
+                        output_data.append({"name": last_found, "phone": "7" + n, "comment": str(row[col]),
+                                            "first": False})
 
     return output_data
 
