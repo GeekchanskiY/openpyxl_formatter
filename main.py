@@ -1,4 +1,13 @@
+import re
+
 from openpyxl import Workbook, load_workbook, worksheet
+
+
+def select_number_from_str(string: str) -> list[str]:
+    all_phones = []
+    for i in range(0, len(string)):
+        if re.match(r"[0-9]", string[i]):
+            print("YAY")
 
 
 def filetype1(wb: Workbook, *args, **kwargs) -> Workbook:
@@ -11,7 +20,14 @@ def filetype1(wb: Workbook, *args, **kwargs) -> Workbook:
         Returns:
             Workbook: new workbook with formatted data
     """
-    pass
+
+    output_data: list[str, list] = []
+    ws: worksheet = wb.active
+    for row in ws.values:
+        for m in re.finditer(r"(?:(?:8|\+7)[\- ]?)?(?:\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}", str(row[1])):
+            select_number_from_str(m.string)
+    print(output_data)
+    return wb
 
 
 def filetype2(wb: Workbook, *args, **kwargs) -> Workbook:
@@ -39,6 +55,6 @@ def main(filename: str, *args, **kwargs):
 
 
 if __name__ == '__main__':
-    main("test2.xlsx")
+    main("test1.xlsx")
 
 
