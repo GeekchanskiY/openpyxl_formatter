@@ -184,15 +184,25 @@ def filetype1(wb: Workbook) -> list:
             for n in numbers:
                 res = check_number(n)
                 if res == 1:
-                    output_data.append({"name": str(row[0]), "phone": "7"+n, "comment": str(row[col]), "first": True})
+                    comment = ""
+                    for comm in cols:
+                        if str(row[comm]) != "None":
+                            comment = str(row[comm])
+                            break
+                    output_data.append({"name": str(row[0]), "phone": "7"+n, "comment": comment, "first": True})
 
                 elif res == 2:
+                    comment = ""
+                    for comm in cols:
+                        if str(row[comm]) != "None":
+                            comment = str(row[comm])
+                            break
                     if len(n) == 7:
                         n = "7812" + n
-                        output_data.append({"name": str(row[0]), "phone": n, "comment": str(row[col]),
+                        output_data.append({"name": str(row[0]), "phone": n, "comment": comment,
                                             "first": False})
                     else:
-                        output_data.append({"name": str(row[0]), "phone": "7"+n, "comment": str(row[col]),
+                        output_data.append({"name": str(row[0]), "phone": "7"+n, "comment": comment,
                                             "first": False})
     return output_data
 
@@ -251,16 +261,25 @@ def filetype2(wb: Workbook) -> list:
             for n in numbers:
                 res = check_number(n)
                 if res == 1:
-
-                    output_data.append({"name": last_found, "phone": "7"+n, "comment": str(row[col]), "first": True})
+                    comment = ""
+                    for comm in cols:
+                        if str(row[comm]) != "None":
+                            comment = str(row[comm])
+                            break
+                    output_data.append({"name": last_found, "phone": "7"+n, "comment": comment, "first": True})
 
                 elif res == 2:
+                    comment = ""
+                    for comm in cols:
+                        if str(row[comm]) != "None":
+                            comment = str(row[comm])
+                            break
                     if len(n) == 7:
                         n = "7812" + n
-                        output_data.append({"name": last_found, "phone": n, "comment": str(row[col]),
+                        output_data.append({"name": last_found, "phone": n, "comment": comment,
                                             "first": False})
                     else:
-                        output_data.append({"name": last_found, "phone": "7" + n, "comment": str(row[col]),
+                        output_data.append({"name": last_found, "phone": "7" + n, "comment": comment,
                                             "first": False})
 
     return output_data
