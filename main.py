@@ -146,15 +146,27 @@ def filetype1(wb: Workbook) -> Workbook:
         # deleting duplicates if exists
 
         numbers = list(set(numbers))
+
+        # creating output data
+
         for n in numbers:
             res = check_number(n)
-            if res is 1:
+            if res == 1:
                 output_data.append({"name": str(row[0]), "phone": n, "comment": str(row[2])})
-            elif res is 2:
+            elif res == 2:
                 if len(n) == 7:
                     n = "7812" + n
                     output_data.append({"name": str(row[0]), "phone": n, "comment": str(row[2])})
 
+    # creating output workbook
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Type1 output"
+    for i in range(0, len(output_data)):
+        ws.cell(row=i+1, column=1).value = output_data[i]["name"]
+        ws.cell(row=i+1, column=2).value = output_data[i]["phone"]
+        ws.cell(row=i+1, column=3).value = output_data[i]["comment"]
     return wb
 
 
