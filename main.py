@@ -33,7 +33,7 @@ def check_number(string: str) -> int:
 
     Args:
         string(str): formatted number str (length will be checked dynamically)
-    Returns:
+    Return:
         bool: 0 - does not match, 1 - case 1, 2 - case 2
     """
     if len(string) == 10:
@@ -58,7 +58,7 @@ def alternative_select_number_from_str(string: str) -> str:
 
     Args:
          string(str): raw number str
-    Returns:
+    Return:
         str: formatted string
     """
     # deleting all unnecessary symbols
