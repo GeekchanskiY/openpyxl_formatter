@@ -101,6 +101,11 @@ def alternative_select_number_from_str(string: str) -> str:
 
 
 def write_to_new_workbook(output_data: list) -> bool:
+    """
+
+    :param output_data:
+    :return:
+    """
     wb = Workbook()
     ws = wb.active
     ws.title = "Output"
@@ -206,8 +211,9 @@ def filetype2(wb: Workbook) -> list:
     for row in ws.values:
 
         raw_numbers: list[str] = []
-        if str(row[0]) is not None and str(row[0]) != "" and str(row[0]) != " ":
+        if str(row[0]) != "None" and str(row[0]) != "" and str(row[0]) != " ":
             last_found = str(row[0])
+            print(row[0])
 
         # First filter with general regex
 
