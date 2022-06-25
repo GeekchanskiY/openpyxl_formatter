@@ -4,6 +4,10 @@ from phonenumbers.phonenumberutil import NumberParseException
 from openpyxl import Workbook, load_workbook, worksheet
 
 
+def check_number(string: str) -> str:
+    pass
+
+
 def alternative_select_number_from_str(string: str) -> str:
 
     # deleting all unnecessary symbols
@@ -65,6 +69,28 @@ def filetype1(wb: Workbook) -> Workbook:
         # First filter with general regex
 
         for m in re.finditer(r"(?:(?:8|\+7)[\- ]?)?(?:\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}", str(row[2])):
+
+            # Second filter with phonenumbers
+
+            for match in phonenumbers.PhoneNumberMatcher(m.string, "RU"):
+                raw_numbers.append(match.raw_string)
+                numbers.append(str(match.number.national_number))
+
+            # deleting everything phonenumbers found
+
+            temp_str: str = m.string
+
+            for number in raw_numbers:
+                temp_str = temp_str.replace(number, "")
+
+            # Third custom filter
+
+            if len(str(re.sub(r"\D", "", temp_str))) >= 7:
+                for t_s in temp_str.split(","):
+                    if t_s != "" and len(re.sub("\D", "", t_s)) >= 7:
+                        numbers.append(alternative_select_number_from_str(t_s))
+
+        for m in re.finditer(r"(?:(?:8|\+7)[\- ]?)?(?:\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}", str(row[1])):
 
             # Second filter with phonenumbers
 
