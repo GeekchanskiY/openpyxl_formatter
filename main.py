@@ -131,7 +131,7 @@ def write_to_new_workbook(output_data: list[dict]) -> bool:
                 written_numbers.append(i["phone"])
                 row += 1
     ws.cell(row=row, column=1).value = "//////////////////"
-    ws.cell(row=row, column=2).value = "// I <3 Python ///"
+    ws.cell(row=row, column=2).value = "// I <3 Python  //"
     ws.cell(row=row, column=3).value = "//////////////////"
     row += 1
     for i in output_data:
